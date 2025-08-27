@@ -1,0 +1,65 @@
+@import "tailwindcss";
+@layer theme, base, components, utilities;
+@import "tailwindcss/theme.css" layer(theme);
+@import "tailwindcss/preflight.css" layer(base);
+@import "tailwindcss/utilities.css" layer(utilities);
+
+/* @layer base {
+  h1 {
+    @apply text-4xl font-bold';
+  }
+  h2 {
+    @apply text-3xl font-semibold;
+  }
+  h3 {
+    @apply text-2xl font-medium;
+  }
+  h4 {
+    @apply text-xl font-medium;
+  }
+  h5 {
+    @apply text-lg font-medium
+  }
+  h6 {
+    @apply text-base font-medium
+  }
+} */
+
+.loader {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  display: block;
+  margin:15px auto;
+  position: relative;
+  background: #FFF;
+  box-shadow: -24px 0 #FFF, 24px 0 #FFF;
+  box-sizing: border-box;
+  animation: shadowPulse 2s linear infinite;
+}
+
+@keyframes shadowPulse {
+  33% {
+    background: #FFF;
+    box-shadow: -24px 0 #0aad0a, 24px 0 #FFF;
+  }
+  66% {
+    background: #0aad0a;
+    box-shadow: -24px 0 #FFF, 24px 0 #FFF;
+  }
+  100% {
+    background: #FFF;
+    box-shadow: -24px 0 #FFF, 24px 0 #0aad0a;
+  }
+}
+
+
+:root {
+    --main-color: #0aad0a; 
+    --main-color: #d4432690; 
+  }
+  
+@theme{
+    --color-active: #0aad0a;
+    --color-notActive: #53a95390;
+}
