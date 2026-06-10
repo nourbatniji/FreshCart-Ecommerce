@@ -14,8 +14,12 @@ import ProtectedRouting from './Component/ProtectedRouting/ProtectedRouting'
 import Brands from './Component/Brands/Brands'
 import Categories from './Component/Cstegories/Categories'
 import ProductDetails from './Component/ProductDetails/ProductDetails'
-import { QueryClient, QueryClientProvider, useQuery } from '@tanstack/react-query'
+import Wishlist from './Component/Wishlist/Wishlist'
+import Checkout from './Component/Checkout/Checkout'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import CartContextProvider from './Context/CartContextProvider'
+import WishlistContextProvider from './Context/WishlistContextProvider'
+import { Toaster } from 'react-hot-toast'
 
 export default function App() {
   let router = createBrowserRouter([
@@ -27,6 +31,8 @@ export default function App() {
         { path: "brands", element: <ProtectedRouting> <Brands /></ProtectedRouting> },
         { path: "categories", element: <ProtectedRouting> <Categories /></ProtectedRouting> },
         { path: "productDetails/:id", element: <ProtectedRouting> <ProductDetails /></ProtectedRouting> },
+        { path: "wishlist", element: <ProtectedRouting> <Wishlist /></ProtectedRouting> },
+        { path: "checkout", element: <ProtectedRouting> <Checkout /></ProtectedRouting> },
         { path: "login", element: <Login /> },
         { path: "signup", element: <Signup /> },
         { path: "forgotPassword", element: <ForgotPassword /> },
@@ -41,7 +47,10 @@ export default function App() {
       <QueryClientProvider client={client}>
         <AuthContextProvider>
           <CartContextProvider>
-          <RouterProvider router={router}></RouterProvider>
+            <WishlistContextProvider>
+              <RouterProvider router={router}></RouterProvider>
+              <Toaster position="top-right" reverseOrder={false} />
+            </WishlistContextProvider>
           </CartContextProvider>
         </AuthContextProvider>
       </QueryClientProvider>

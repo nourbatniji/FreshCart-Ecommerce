@@ -4,7 +4,7 @@ import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
 
-export default function forgotPassword() {
+export default function ForgotPassword() {
   let [errorMessage, setErrorMessage] = useState(null)
   let [formDisplay, setFormDisplay] = useState(true)
   let navg = useNavigate()

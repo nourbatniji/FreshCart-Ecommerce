@@ -1,85 +1,171 @@
-import { useQuery } from '@tanstack/react-query';
-import axios from 'axios';
-import React, { useEffect, useState } from 'react'
+import { useQuery } from '@tanstack/react-query'
+import axios from 'axios'
+import React, { useContext } from 'react'
 import { useParams } from 'react-router-dom'
-import Slider from 'react-slick';
+import { CartContext } from '../../Context/CartContextProvider'
+import { WishlistContext } from '../../Context/WishlistContextProvider'
+import toast from 'react-hot-toast'
 
 export default function ProductDetails() {
-    let { id } = useParams()
+  const { id } = useParams()
+  const { addToCart } = useContext(CartContext)
+  const { wishlistIds, addToWishlist, removeFromWishlist } = useContext(WishlistContext)
 
-
-    let { data, isLoading, isError, error } = useQuery({
-        queryKey: ['ProductDetails', id],
-        queryFn: function () {
-            return axios.get(`https://ecommerce.routemisr.com/api/v1/products/${id}`)
-        }
-    })
-
-    
-
-
-
-    function getImgSrc(e) {
-        let imgSrc = e.target.getAttribute("src");
-        document.getElementById("myImage").setAttribute("src", imgSrc)
+  const { data, isLoading, isError } = useQuery({
+    queryKey: ['ProductDetails', id],
+    queryFn: function () {
+      return axios.get(`https://ecommerce.routemisr.com/api/v1/products/${id}`)
     }
+  })
 
+  function getImgSrc(e) {
+    let imgSrc = e.target.getAttribute("src")
+    document.getElementById("myImage").setAttribute("src", imgSrc)
+  }
 
-    let product = data?.data?.data
+  const handleAddToCart = (productId) => {
+    const addPromise = addToCart(productId)
+    toast.promise(addPromise, {
+      loading: 'Adding to cart...',
+      success: 'Added to cart successfully! 🛒',
+      error: 'Failed to add product to cart.'
+    }, {
+      style: {
+        borderRadius: '10px',
+        background: '#333',
+        color: '#fff',
+      }
+    })
+  }
 
+  const handleWishlistToggle = (productId) => {
+    const isInWishlist = wishlistIds.includes(productId)
+    if (isInWishlist) {
+      removeFromWishlist(productId)
+        .then(() => {
+          toast.success("Removed from Wishlist", {
+            icon: '💔',
+            style: { borderRadius: '10px', background: '#333', color: '#fff' }
+          })
+        })
+        .catch(() => toast.error("Failed to remove from wishlist"))
+    } else {
+      addToWishlist(productId)
+        .then(() => {
+          toast.success("Added to Wishlist", {
+            icon: '❤️',
+            style: { borderRadius: '10px', background: '#333', color: '#fff' }
+          })
+        })
+        .catch(() => toast.error("Failed to add to wishlist"))
+    }
+  }
+
+  if (isLoading) {
     return (
-        <>
-          {isLoading?  <div className='flex h-screen items-center justify-center bg-gray-100'><span className="loader"></span> </div>:
-            <div className='mt-36 w-10/12 mx-auto'>
-                <div className="flex items-center justify-center">
-                    <div className="w-3/12">
-                        <img src={product?.imageCover} id='myImage' alt="" />
-                        <div className="flex mt-4">
-                            {product?.images.map((image, i) => {
-                                return <div key={i} >
-                                    <img src={image} onClick={getImgSrc} alt="" />
-                                </div>
-                            })}
-                        </div>
-                        {/* <Slider dots>
-                        {product?.images.map((image, i) => {
-                            return <div key={i}>
-                                <img src={image} className='w-full' alt="" />
-                            </div>
-                        })}
-                    </Slider> */}
-
-
-                    </div>
-                    <div className="w-9/12 px-12">
-                        <h3 className='text-2xl font-medium'>{product?.title}</h3>
-                        <p className='text-gray-500 py-4 px-3'>{product?.description}</p>
-                        <p className='font-semibold mb-1.5 text-active'>{product?.category.name}</p>
-                        <div className="flex justify-between items-center">
-                            <span>Price: {product?.price}EGP</span>
-                            <span className='text-yellow-600'>
-                                {product?.ratingsAverage}
-                                <i className='fa-solid fa-star'></i></span>
-                        </div>
-                        <button className='w-full mt-14 cursor-pointer bg-active rounded text-white py-2'>Add to cart</button>
-                    </div>
-                </div>
-            </div>}
-        </>
+      <div className="flex h-screen items-center justify-center bg-gray-50">
+        <span className="loader"></span>
+      </div>
     )
+  }
+
+  if (isError) {
+    return (
+      <div className="flex h-screen items-center justify-center text-red-500 font-bold">
+        Failed to load product details. Please try again.
+      </div>
+    )
+  }
+
+  const product = data?.data?.data
+  const isInWishlist = wishlistIds.includes(product?._id || product?.id)
+
+  return (
+    <div className="mt-36 mb-20 px-4 md:px-0">
+      <div className="max-w-6xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 p-6 md:p-12">
+        <div className="flex flex-col lg:flex-row gap-12 items-center">
+          
+          {/* Gallery Area */}
+          <div className="w-full lg:w-5/12 flex flex-col items-center">
+            <div className="w-full h-[400px] overflow-hidden rounded-2xl bg-gray-50 border border-gray-100 flex items-center justify-center p-4">
+              <img 
+                src={product?.imageCover} 
+                id="myImage" 
+                className="max-h-full max-w-full object-contain transition-all duration-300" 
+                alt={product?.title} 
+              />
+            </div>
+            {product?.images && product.images.length > 1 && (
+              <div className="flex gap-3 mt-4 overflow-x-auto w-full py-2 justify-center">
+                {product.images.map((image, i) => (
+                  <div 
+                    key={i} 
+                    className="w-16 h-16 rounded-lg border border-gray-200 overflow-hidden cursor-pointer hover:border-active transition duration-200 flex-shrink-0 flex items-center justify-center bg-gray-50"
+                  >
+                    <img 
+                      src={image} 
+                      onClick={getImgSrc} 
+                      className="max-h-full max-w-full object-contain" 
+                      alt="" 
+                    />
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Details Area */}
+          <div className="w-full lg:w-7/12">
+            <span className="text-active font-extrabold uppercase text-sm tracking-wider bg-active/10 px-3 py-1 rounded-full">
+              {product?.category?.name}
+            </span>
+            <h1 className="text-3xl md:text-4xl font-extrabold text-gray-950 mt-4 leading-tight">{product?.title}</h1>
+            
+            <div className="flex items-center gap-4 mt-4">
+              <div className="flex items-center gap-1 font-bold text-gray-700 bg-amber-50 px-3 py-1 rounded-lg">
+                <i className="fa-solid fa-star text-amber-500"></i>
+                <span>{product?.ratingsAverage}</span>
+              </div>
+              <span className="text-gray-400">|</span>
+              <span className="text-gray-500 font-medium">{product?.brand?.name || 'FreshBrand'}</span>
+            </div>
+
+            <p className="text-gray-500 leading-relaxed mt-6 text-base">{product?.description}</p>
+            
+            <div className="border-t border-gray-100 my-8"></div>
+
+            <div className="flex items-center justify-between mb-8">
+              <div>
+                <span className="text-gray-400 text-sm font-medium">Price</span>
+                <div className="text-3xl font-black text-gray-900 mt-1">{product?.price} EGP</div>
+              </div>
+            </div>
+
+            {/* Action Buttons */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <button
+                onClick={() => handleAddToCart(product?._id || product?.id)}
+                className="flex-1 bg-active hover:bg-active/95 text-white py-4 rounded-2xl font-bold text-base shadow-lg shadow-active/20 hover:shadow-xl transition-all duration-250 flex items-center justify-center gap-2 active:scale-98 cursor-pointer"
+              >
+                <i className="fa-solid fa-cart-shopping"></i> Add to Cart
+              </button>
+
+              <button
+                onClick={() => handleWishlistToggle(product?._id || product?.id)}
+                className={`px-6 py-4 rounded-2xl border font-bold text-base transition-all duration-250 flex items-center justify-center gap-2 active:scale-95 cursor-pointer ${
+                  isInWishlist 
+                    ? 'border-red-200 bg-red-50 text-red-500 hover:bg-red-100' 
+                    : 'border-gray-200 hover:bg-gray-50 text-gray-650 hover:text-gray-900'
+                }`}
+              >
+                <i className={`fa-heart ${isInWishlist ? 'fa-solid text-red-500' : 'fa-regular'}`}></i>
+                <span>{isInWishlist ? 'Wishlisted' : 'Add to Wishlist'}</span>
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  )
 }
-
-
-//    let [product, setProduct] = useState(null)
-
-// function getProductDetails(id) {
-//     axios.get(`https://ecommerce.routemisr.com/api/v1/products/${id}`)
-//         .then((req) => {
-//             setProduct(req.data.data);
-//             console.log(product);
-
-//         }).catch((err) => {
-//             console.log(err);
-//         })
-// }
-// useEffect(() => { getProductDetails(id) }, [id])
