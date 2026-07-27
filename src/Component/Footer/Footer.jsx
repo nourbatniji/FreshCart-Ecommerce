@@ -5,34 +5,44 @@ import img3 from '../../assets/images/masterCard2.png'
 import img4 from '../../assets/images/paypal.png'
 import img5 from '../../assets/images/App-Store.png'
 import img6 from '../../assets/images/googlePlay.png'
+import { motion } from 'framer-motion'
+import { fadeUp } from '../../utils/motion'
 
 export default function Footer() {
   return (
-    <footer className="bg-slate-50 border-t border-slate-100 py-16 mt-16 transition duration-300">
+    <motion.footer
+      initial="hidden"
+      whileInView="show"
+      viewport={{ once: true, amount: 0.2 }}
+      variants={fadeUp}
+      className="bg-slate-50 border-t border-slate-100 py-16 mt-16 transition duration-300"
+    >
       <div className="max-w-7xl mx-auto px-4 md:px-8">
-        
+
         {/* App promotion section */}
         <div className="mb-10">
           <h2 className="text-2xl font-extrabold text-gray-900 tracking-tight">Get the FreshCart app</h2>
           <p className="text-gray-500 mt-2 text-sm md:text-base">We will send you a link, open it on your phone to download the app.</p>
-          
+
           <div className="flex flex-col sm:flex-row gap-4 mt-6 max-w-3xl">
-            <input 
-              className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-active/20 focus:border-active transition shadow-sm" 
-              type="email" 
-              placeholder="Enter your email address" 
+            <input
+              className="flex-1 bg-white border border-gray-200 rounded-xl px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-active/20 focus:border-active transition shadow-sm"
+              type="email"
+              placeholder="Enter your email address"
             />
-            <button 
-              className="bg-active hover:bg-active/95 text-white font-bold px-6 py-3 rounded-xl shadow-md hover:shadow-lg active:scale-98 transition duration-200 text-sm cursor-pointer"
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.97 }}
+              className="bg-active hover:bg-active/95 text-white font-bold px-6 py-3 rounded-xl shadow-md hover:shadow-lg transition duration-200 text-sm cursor-pointer"
             >
               Share App Link
-            </button>
+            </motion.button>
           </div>
         </div>
 
         {/* Partners & Stores Section */}
         <div className="flex flex-col lg:flex-row justify-between items-start lg:items-center gap-6 py-8 border-y border-slate-200/60 my-10">
-          
+
           {/* Payment Partners */}
           <div className="flex flex-wrap items-center gap-4">
             <span className="text-sm font-semibold text-gray-700">Payment Partners</span>
@@ -61,6 +71,6 @@ export default function Footer() {
         </div>
 
       </div>
-    </footer>
+    </motion.footer>
   )
 }
