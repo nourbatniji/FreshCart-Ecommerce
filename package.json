@@ -17,6 +17,7 @@
     "axios": "^1.8.3",
     "flowbite": "^3.1.2",
     "formik": "^2.4.6",
+    "framer-motion": "^12.42.2",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.6.0",

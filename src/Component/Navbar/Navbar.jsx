@@ -1,20 +1,42 @@
-import React, { useContext } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import logoImg from '../../assets/images/logo.png'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { AuthContext } from '../../Context/AuthContextProvider'
 import { CartContext } from '../../Context/CartContextProvider'
 import { WishlistContext } from '../../Context/WishlistContextProvider'
+import { AnimatePresence, motion } from 'framer-motion'
+
+const navLinks = [
+  { to: '', label: 'Home', end: true },
+  { to: '/product', label: 'Products' },
+  { to: '/categories', label: 'Categories' },
+  { to: '/brands', label: 'Brands' },
+]
 
 export default function Navbar() {
   let { token, setToken } = useContext(AuthContext)
   let { numOfCartItems } = useContext(CartContext)
   let { wishlistCount } = useContext(WishlistContext)
   let navg = useNavigate()
+  const [scrolled, setScrolled] = useState(false)
+  const [menuOpen, setMenuOpen] = useState(false)
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    onScroll()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    return () => window.removeEventListener('scroll', onScroll)
+  }, [])
+
+  useEffect(() => {
+    setMenuOpen(false)
+  }, [token])
 
   function logout() {
     setToken(null)
-    localStorage.removeItem("token")
-    navg("/login")
+    localStorage.removeItem('token')
+    setMenuOpen(false)
+    navg('/login')
   }
 
   const getLinkClass = ({ isActive }) =>
@@ -22,13 +44,25 @@ export default function Navbar() {
       isActive ? 'text-active' : 'text-gray-600 hover:text-active'
     }`
 
+  const getMobileLinkClass = ({ isActive }) =>
+    `block w-full px-4 py-3 rounded-xl font-semibold text-base transition-all duration-200 ${
+      isActive ? 'text-active bg-emerald-50' : 'text-gray-700 hover:bg-slate-50'
+    }`
+
   return (
-    <nav className="shadow-sm backdrop-blur-md bg-white/80 py-4 fixed w-full top-0 left-0 z-50 border-b border-slate-100 transition duration-300">
+    <motion.nav
+      initial={{ y: -80, opacity: 0 }}
+      animate={{ y: 0, opacity: 1 }}
+      transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+      className={`backdrop-blur-md bg-white/80 py-4 fixed w-full top-0 left-0 z-50 border-b transition-all duration-300 ${
+        scrolled ? 'shadow-sm border-slate-100' : 'border-transparent'
+      }`}
+    >
       <div className="max-w-7xl flex items-center justify-between mx-auto px-4 md:px-8">
-        
+
         {/* Brand Logo */}
         <div className="flex items-center gap-10">
-          <Link to="" className="flex space-x-2.5 items-center">
+          <Link to="" className="flex space-x-2.5 items-center" onClick={() => setMenuOpen(false)}>
             <img src={logoImg} className="h-9" alt="Fresh Cart Logo" />
             <span className="self-center text-2xl font-black tracking-tight text-gray-900">
               Fresh<span className="text-active">Cart</span>
@@ -38,25 +72,18 @@ export default function Navbar() {
           {/* Center Navigation Links (Visible when logged in) */}
           {token && (
             <ul className="hidden md:flex items-center gap-6 text-sm">
-              <li>
-                <NavLink to="" end className={getLinkClass}>Home</NavLink>
-              </li>
-              <li>
-                <NavLink to="/product" className={getLinkClass}>Products</NavLink>
-              </li>
-              <li>
-                <NavLink to="/categories" className={getLinkClass}>Categories</NavLink>
-              </li>
-              <li>
-                <NavLink to="/brands" className={getLinkClass}>Brands</NavLink>
-              </li>
+              {navLinks.map((link) => (
+                <li key={link.label}>
+                  <NavLink to={link.to} end={link.end} className={getLinkClass}>{link.label}</NavLink>
+                </li>
+              ))}
             </ul>
           )}
         </div>
 
         {/* Right Section Actions */}
-        <div className="flex items-center gap-6">
-          
+        <div className="flex items-center gap-4 md:gap-6">
+
           {/* Social Links (Hidden on small screens) */}
           <div className="hidden lg:flex items-center gap-3 text-gray-400">
             <a href="https://www.facebook.com/" target="_blank" rel="noreferrer" className="hover:text-active transition duration-200">
@@ -74,35 +101,58 @@ export default function Navbar() {
           </div>
 
           {/* User Auth controls / Wishlist / Cart Icons */}
-          <div className="flex items-center gap-5">
+          <div className="flex items-center gap-3 md:gap-5">
             {token ? (
               <>
                 {/* Wishlist Link Icon with Badge */}
                 <NavLink to="/wishlist" className={({ isActive }) => `relative flex items-center p-1.5 rounded-full transition ${isActive ? 'text-active bg-emerald-50' : 'text-gray-600 hover:text-active hover:bg-slate-50'}`}>
-                  <i className="fa-regular fa-heart text-xl"></i>
-                  {wishlistCount > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white">
-                      {wishlistCount}
-                    </span>
-                  )}
+                  <motion.i whileTap={{ scale: 0.85 }} className="fa-regular fa-heart text-xl"></motion.i>
+                  <AnimatePresence>
+                    {wishlistCount > 0 && (
+                      <motion.span
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white"
+                      >
+                        {wishlistCount}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                 </NavLink>
 
                 {/* Cart Link Icon with Badge */}
                 <NavLink to="/cart" className={({ isActive }) => `relative flex items-center p-1.5 rounded-full transition ${isActive ? 'text-active bg-emerald-50' : 'text-gray-600 hover:text-active hover:bg-slate-50'}`}>
-                  <i className="fa-solid fa-cart-shopping text-xl"></i>
-                  {numOfCartItems > 0 && (
-                    <span className="absolute -top-1 -right-1 bg-active text-white text-[10px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white animate-pulse">
-                      {numOfCartItems}
-                    </span>
-                  )}
+                  <motion.i whileTap={{ scale: 0.85 }} className="fa-solid fa-cart-shopping text-xl"></motion.i>
+                  <AnimatePresence>
+                    {numOfCartItems > 0 && (
+                      <motion.span
+                        initial={{ scale: 0, opacity: 0 }}
+                        animate={{ scale: 1, opacity: 1 }}
+                        exit={{ scale: 0, opacity: 0 }}
+                        className="absolute -top-1 -right-1 bg-active text-white text-[10px] font-black w-4.5 h-4.5 rounded-full flex items-center justify-center border border-white"
+                      >
+                        {numOfCartItems}
+                      </motion.span>
+                    )}
+                  </AnimatePresence>
                 </NavLink>
 
                 {/* Logout Action */}
-                <button 
-                  onClick={logout} 
+                <button
+                  onClick={logout}
                   className="hidden sm:inline-block text-sm font-semibold text-gray-600 hover:text-red-500 transition cursor-pointer"
                 >
                   Logout
+                </button>
+
+                {/* Mobile menu toggle */}
+                <button
+                  onClick={() => setMenuOpen((v) => !v)}
+                  className="md:hidden relative w-9 h-9 flex items-center justify-center text-gray-700 cursor-pointer"
+                  aria-label="Toggle menu"
+                >
+                  <i className={`fa-solid ${menuOpen ? 'fa-xmark' : 'fa-bars'} text-xl`}></i>
                 </button>
               </>
             ) : (
@@ -117,6 +167,37 @@ export default function Navbar() {
         </div>
 
       </div>
-    </nav>
+
+      {/* Mobile Menu Panel */}
+      <AnimatePresence>
+        {token && menuOpen && (
+          <motion.div
+            initial={{ height: 0, opacity: 0 }}
+            animate={{ height: 'auto', opacity: 1 }}
+            exit={{ height: 0, opacity: 0 }}
+            transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+            className="md:hidden overflow-hidden border-t border-slate-100 bg-white/95 backdrop-blur-md"
+          >
+            <ul className="px-4 py-3 space-y-1">
+              {navLinks.map((link) => (
+                <li key={link.label}>
+                  <NavLink to={link.to} end={link.end} className={getMobileLinkClass} onClick={() => setMenuOpen(false)}>
+                    {link.label}
+                  </NavLink>
+                </li>
+              ))}
+              <li className="pt-2 mt-2 border-t border-slate-100">
+                <button
+                  onClick={logout}
+                  className="w-full text-left px-4 py-3 rounded-xl font-semibold text-base text-red-500 hover:bg-red-50 transition cursor-pointer"
+                >
+                  Logout
+                </button>
+              </li>
+            </ul>
+          </motion.div>
+        )}
+      </AnimatePresence>
+    </motion.nav>
   )
 }

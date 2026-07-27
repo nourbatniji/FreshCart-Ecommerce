@@ -1,14 +1,31 @@
 import React from 'react'
 import Navbar from '../Navbar/Navbar'
-import { Outlet } from 'react-router-dom'
+import { Outlet, useLocation } from 'react-router-dom'
 import Footer from '../Footer/Footer'
+import { AnimatePresence, motion } from 'framer-motion'
+import ScrollToTop, { RouteScrollReset } from '../ScrollToTop/ScrollToTop'
+import { pageTransition } from '../../utils/motion'
 
 export default function Layout() {
+  const location = useLocation()
+
   return (
     <div>
       <Navbar />
-      <Outlet />
+      <RouteScrollReset />
+      <AnimatePresence mode="wait">
+        <motion.div
+          key={location.pathname}
+          initial="initial"
+          animate="animate"
+          exit="exit"
+          variants={pageTransition}
+        >
+          <Outlet />
+        </motion.div>
+      </AnimatePresence>
       <Footer />
+      <ScrollToTop />
     </div>
   )
 }
