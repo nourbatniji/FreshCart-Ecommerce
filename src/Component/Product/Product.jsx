@@ -4,11 +4,14 @@ import useApi from '../../Hooks/useApi'
 import { CartContext } from '../../Context/CartContextProvider'
 import { WishlistContext } from '../../Context/WishlistContextProvider'
 import toast from 'react-hot-toast'
+import { motion } from 'framer-motion'
+import { fadeUp, staggerContainer } from '../../utils/motion'
+import ProductCardSkeleton from './ProductCardSkeleton'
 
 export default function Product() {
   const { addToCart } = useContext(CartContext)
   const { wishlistIds, addToWishlist, removeFromWishlist } = useContext(WishlistContext)
-  
+
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
 
@@ -20,7 +23,7 @@ export default function Product() {
   const handleAddToCart = (e, productId) => {
     e.preventDefault()
     e.stopPropagation()
-    
+
     const addPromise = addToCart(productId)
     toast.promise(addPromise, {
       loading: 'Adding to cart...',
@@ -60,14 +63,6 @@ export default function Product() {
     }
   }
 
-  if (productsLoading || categoriesLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center bg-gray-50">
-        <span className="loader"></span>
-      </div>
-    )
-  }
-
   if (productsError) {
     return (
       <div className="flex h-screen items-center justify-center text-red-500 font-bold">
@@ -76,6 +71,7 @@ export default function Product() {
     )
   }
 
+  const isLoading = productsLoading || categoriesLoading
   const products = productsData?.data?.data || []
   const categories = categoriesData?.data?.data || []
 
@@ -112,95 +108,120 @@ export default function Product() {
           </div>
 
           {/* Category Quick Filter Chips */}
-          <div className="flex flex-wrap gap-2 justify-center w-full md:w-auto">
-            <button
-              onClick={() => setSelectedCategory('All')}
-              className={`px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-200 cursor-pointer ${
-                selectedCategory === 'All'
-                  ? 'bg-active text-white shadow-md shadow-active/10'
-                  : 'bg-white text-gray-650 hover:bg-gray-100 border border-gray-150'
-              }`}
-            >
-              All
-            </button>
-            {categories.map((cat) => (
+          {categoriesLoading ? (
+            <div className="flex flex-wrap gap-2 justify-center w-full md:w-auto">
+              {new Array(5).fill('').map((_, i) => (
+                <div key={i} className="h-10 w-24 rounded-full bg-gray-150 animate-pulse" />
+              ))}
+            </div>
+          ) : (
+            <div className="flex flex-wrap gap-2 justify-center w-full md:w-auto">
               <button
-                key={cat._id}
-                onClick={() => setSelectedCategory(cat.name)}
+                onClick={() => setSelectedCategory('All')}
                 className={`px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-200 cursor-pointer ${
-                  selectedCategory === cat.name
+                  selectedCategory === 'All'
                     ? 'bg-active text-white shadow-md shadow-active/10'
                     : 'bg-white text-gray-650 hover:bg-gray-100 border border-gray-150'
                 }`}
               >
-                {cat.name}
+                All
               </button>
-            ))}
-          </div>
+              {categories.map((cat) => (
+                <button
+                  key={cat._id}
+                  onClick={() => setSelectedCategory(cat.name)}
+                  className={`px-5 py-2.5 rounded-full font-semibold text-sm transition-all duration-200 cursor-pointer ${
+                    selectedCategory === cat.name
+                      ? 'bg-active text-white shadow-md shadow-active/10'
+                      : 'bg-white text-gray-650 hover:bg-gray-100 border border-gray-150'
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Product Grid */}
-        {filteredProducts.length > 0 ? (
+        {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+            {new Array(10).fill('').map((_, i) => <ProductCardSkeleton key={i} />)}
+          </div>
+        ) : filteredProducts.length > 0 ? (
+          <motion.div
+            variants={staggerContainer(0.04)}
+            initial="hidden"
+            animate="show"
+            className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6"
+          >
             {filteredProducts.map((product) => {
               const { imageCover, _id, title, price, ratingsAverage, category } = product
               const isInWishlist = wishlistIds.includes(_id)
 
               return (
-                <Link key={_id} to={`/productDetails/${_id}`} className="group">
-                  <div className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 h-[430px] flex flex-col justify-between p-4 relative group">
-                    
-                    {/* Wishlist Toggle Button */}
-                    <button
-                      onClick={(e) => handleWishlistToggle(e, _id)}
-                      className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm shadow-sm flex items-center justify-center hover:bg-white active:scale-90 transition-all duration-200 cursor-pointer"
+                <motion.div key={_id} variants={fadeUp}>
+                  <Link to={`/productDetails/${_id}`} className="group">
+                    <motion.div
+                      whileHover={{ y: -4 }}
+                      transition={{ duration: 0.2 }}
+                      className="bg-white rounded-2xl border border-gray-100 overflow-hidden shadow-sm hover:shadow-xl transition-shadow duration-300 h-[430px] flex flex-col justify-between p-4 relative"
                     >
-                      <i className={`fa-heart text-lg transition duration-200 ${
-                        isInWishlist ? 'fa-solid text-red-500 scale-110' : 'fa-regular text-gray-400 group-hover:text-active'
-                      }`}></i>
-                    </button>
 
-                    {/* Image Area */}
-                    <div className="overflow-hidden rounded-xl h-52 flex items-center justify-center bg-gray-50 mb-4">
-                      <img 
-                        src={imageCover} 
-                        className="max-h-full object-contain group-hover:scale-105 transition duration-300" 
-                        alt={title} 
-                      />
-                    </div>
-
-                    {/* Content Area */}
-                    <div className="flex-1 flex flex-col justify-between">
-                      <div>
-                        <span className="text-active text-xs font-bold uppercase tracking-wider">{category?.name}</span>
-                        <h3 className="text-gray-800 font-bold text-sm mt-1 line-clamp-2 min-h-10 leading-snug group-hover:text-active transition duration-200">
-                          {title}
-                        </h3>
-                      </div>
-
-                      {/* Pricing & Rating */}
-                      <div className="flex items-center justify-between mt-3">
-                        <span className="font-extrabold text-gray-900 text-base">{price} EGP</span>
-                        <span className="flex items-center gap-1 text-sm font-semibold text-gray-700 bg-amber-50 px-2 py-0.5 rounded-lg">
-                          <i className="fa-solid fa-star text-amber-500 text-xs"></i>
-                          {ratingsAverage}
-                        </span>
-                      </div>
-
-                      {/* Add to Cart Button */}
-                      <button
-                        onClick={(e) => handleAddToCart(e, _id)}
-                        className="w-full mt-4 bg-active hover:bg-active/95 text-white py-2.5 rounded-xl font-bold text-xs shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-1.5 active:scale-98 cursor-pointer"
+                      {/* Wishlist Toggle Button */}
+                      <motion.button
+                        whileTap={{ scale: 0.8 }}
+                        onClick={(e) => handleWishlistToggle(e, _id)}
+                        className="absolute top-4 right-4 z-10 w-9 h-9 rounded-full bg-white/80 backdrop-blur-sm shadow-sm flex items-center justify-center hover:bg-white transition-all duration-200 cursor-pointer"
                       >
-                        <i className="fa-solid fa-cart-shopping"></i> Add to Cart
-                      </button>
-                    </div>
+                        <i className={`fa-heart text-lg transition duration-200 ${
+                          isInWishlist ? 'fa-solid text-red-500 scale-110' : 'fa-regular text-gray-400 group-hover:text-active'
+                        }`}></i>
+                      </motion.button>
 
-                  </div>
-                </Link>
+                      {/* Image Area */}
+                      <div className="overflow-hidden rounded-xl h-52 flex items-center justify-center bg-gray-50 mb-4">
+                        <img
+                          src={imageCover}
+                          className="max-h-full object-contain group-hover:scale-105 transition duration-300"
+                          alt={title}
+                        />
+                      </div>
+
+                      {/* Content Area */}
+                      <div className="flex-1 flex flex-col justify-between">
+                        <div>
+                          <span className="text-active text-xs font-bold uppercase tracking-wider">{category?.name}</span>
+                          <h3 className="text-gray-800 font-bold text-sm mt-1 line-clamp-2 min-h-10 leading-snug group-hover:text-active transition duration-200">
+                            {title}
+                          </h3>
+                        </div>
+
+                        {/* Pricing & Rating */}
+                        <div className="flex items-center justify-between mt-3">
+                          <span className="font-extrabold text-gray-900 text-base">{price} EGP</span>
+                          <span className="flex items-center gap-1 text-sm font-semibold text-gray-700 bg-amber-50 px-2 py-0.5 rounded-lg">
+                            <i className="fa-solid fa-star text-amber-500 text-xs"></i>
+                            {ratingsAverage}
+                          </span>
+                        </div>
+
+                        {/* Add to Cart Button */}
+                        <motion.button
+                          whileTap={{ scale: 0.96 }}
+                          onClick={(e) => handleAddToCart(e, _id)}
+                          className="w-full mt-4 bg-active hover:bg-active/95 text-white py-2.5 rounded-xl font-bold text-xs shadow-sm hover:shadow-md transition-all duration-200 flex items-center justify-center gap-1.5 cursor-pointer"
+                        >
+                          <i className="fa-solid fa-cart-shopping"></i> Add to Cart
+                        </motion.button>
+                      </div>
+
+                    </motion.div>
+                  </Link>
+                </motion.div>
               )
             })}
-          </div>
+          </motion.div>
         ) : (
           <div className="text-center py-20 bg-white rounded-2xl border border-gray-150 max-w-md mx-auto px-6">
             <div className="w-20 h-20 bg-gray-50 text-gray-400 rounded-full flex items-center justify-center mx-auto mb-5">
