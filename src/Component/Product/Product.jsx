@@ -1,16 +1,20 @@
 import React, { useState, useContext } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import useApi from '../../Hooks/useApi'
+import { AuthContext } from '../../Context/AuthContextProvider'
 import { CartContext } from '../../Context/CartContextProvider'
 import { WishlistContext } from '../../Context/WishlistContextProvider'
 import toast from 'react-hot-toast'
 import { motion } from 'framer-motion'
 import { fadeUp, staggerContainer } from '../../utils/motion'
+import { requireAuth } from '../../utils/requireAuth'
 import ProductCardSkeleton from './ProductCardSkeleton'
 
 export default function Product() {
+  const { token } = useContext(AuthContext)
   const { addToCart } = useContext(CartContext)
   const { wishlistIds, addToWishlist, removeFromWishlist } = useContext(WishlistContext)
+  const navigate = useNavigate()
 
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
@@ -23,6 +27,7 @@ export default function Product() {
   const handleAddToCart = (e, productId) => {
     e.preventDefault()
     e.stopPropagation()
+    if (!requireAuth(token, navigate)) return
 
     const addPromise = addToCart(productId)
     toast.promise(addPromise, {
@@ -41,6 +46,7 @@ export default function Product() {
   const handleWishlistToggle = (e, productId) => {
     e.preventDefault()
     e.stopPropagation()
+    if (!requireAuth(token, navigate)) return
 
     if (wishlistIds.includes(productId)) {
       removeFromWishlist(productId)

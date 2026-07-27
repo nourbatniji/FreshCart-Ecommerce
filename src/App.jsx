@@ -26,12 +26,12 @@ export default function App() {
   let router = createBrowserRouter([
     {
       path: "", element: <Layout />, children: [
-        { index: true, element: <ProtectedRouting> <Home /></ProtectedRouting> },
+        { index: true, element: <Home /> },
+        { path: "product", element: <Product /> },
+        { path: "brands", element: <Brands /> },
+        { path: "categories", element: <Categories /> },
+        { path: "productDetails/:id", element: <ProductDetails /> },
         { path: "cart", element: <ProtectedRouting> <Cart /></ProtectedRouting> },
-        { path: "product", element: <ProtectedRouting> <Product /></ProtectedRouting> },
-        { path: "brands", element: <ProtectedRouting> <Brands /></ProtectedRouting> },
-        { path: "categories", element: <ProtectedRouting> <Categories /></ProtectedRouting> },
-        { path: "productDetails/:id", element: <ProtectedRouting> <ProductDetails /></ProtectedRouting> },
         { path: "wishlist", element: <ProtectedRouting> <Wishlist /></ProtectedRouting> },
         { path: "checkout", element: <ProtectedRouting> <Checkout /></ProtectedRouting> },
         { path: "login", element: <Login /> },

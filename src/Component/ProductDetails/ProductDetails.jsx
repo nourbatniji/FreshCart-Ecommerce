@@ -1,17 +1,21 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
 import React, { useContext, useEffect, useState } from 'react'
-import { useParams } from 'react-router-dom'
+import { useParams, useNavigate } from 'react-router-dom'
+import { AuthContext } from '../../Context/AuthContextProvider'
 import { CartContext } from '../../Context/CartContextProvider'
 import { WishlistContext } from '../../Context/WishlistContextProvider'
 import toast from 'react-hot-toast'
 import { AnimatePresence, motion } from 'framer-motion'
+import { requireAuth } from '../../utils/requireAuth'
 
 export default function ProductDetails() {
   const { id } = useParams()
+  const { token } = useContext(AuthContext)
   const { addToCart } = useContext(CartContext)
   const { wishlistIds, addToWishlist, removeFromWishlist } = useContext(WishlistContext)
   const [activeImage, setActiveImage] = useState(null)
+  const navigate = useNavigate()
 
   const { data, isLoading, isError } = useQuery({
     queryKey: ['ProductDetails', id],
@@ -27,6 +31,7 @@ export default function ProductDetails() {
   }, [product?.imageCover])
 
   const handleAddToCart = (productId) => {
+    if (!requireAuth(token, navigate)) return
     const addPromise = addToCart(productId)
     toast.promise(addPromise, {
       loading: 'Adding to cart...',
@@ -42,6 +47,7 @@ export default function ProductDetails() {
   }
 
   const handleWishlistToggle = (productId) => {
+    if (!requireAuth(token, navigate)) return
     const isInWishlist = wishlistIds.includes(productId)
     if (isInWishlist) {
       removeFromWishlist(productId)

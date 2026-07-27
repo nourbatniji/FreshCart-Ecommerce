@@ -1,25 +1,30 @@
 import React, { useState, useContext } from 'react'
 import MainSlider from '../MainSlider/MainSlider'
 import CategorySider from '../CategorySider/CategorySider'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import useApi from '../../Hooks/useApi'
+import { AuthContext } from '../../Context/AuthContextProvider'
 import { CartContext } from '../../Context/CartContextProvider'
 import { WishlistContext } from '../../Context/WishlistContextProvider'
 import toast from 'react-hot-toast'
 import { motion } from 'framer-motion'
 import { fadeUp, staggerContainer } from '../../utils/motion'
+import { requireAuth } from '../../utils/requireAuth'
 import ProductCardSkeleton from '../Product/ProductCardSkeleton'
 
 export default function Home() {
   let [page, setPage] = useState(1)
+  const { token } = useContext(AuthContext)
   const { addToCart } = useContext(CartContext)
   const { wishlistIds, addToWishlist, removeFromWishlist } = useContext(WishlistContext)
+  const navigate = useNavigate()
 
   let {data, isLoading, isError} = useApi(`products?limit=20&page=${page}`)
 
   const handleAddToCart = (e, productId) => {
     e.preventDefault()
     e.stopPropagation()
+    if (!requireAuth(token, navigate)) return
     const addPromise = addToCart(productId)
     toast.promise(addPromise, {
       loading: 'Adding to cart...',
@@ -37,6 +42,7 @@ export default function Home() {
   const handleWishlistToggle = (e, productId) => {
     e.preventDefault()
     e.stopPropagation()
+    if (!requireAuth(token, navigate)) return
     const isInWishlist = wishlistIds.includes(productId)
     if (isInWishlist) {
       removeFromWishlist(productId)

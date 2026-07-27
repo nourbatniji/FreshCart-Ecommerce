@@ -13,7 +13,3 @@ export default function useApi(endPoint) {
   return req
 }
 
-//let hamada = useApi() //بكدة حمادة هيستلم اللي راجع من اليوز اي بي اي
-
-// useApi("products")
-// useApi("cart")

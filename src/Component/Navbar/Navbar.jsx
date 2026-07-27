@@ -69,16 +69,14 @@ export default function Navbar() {
             </span>
           </Link>
 
-          {/* Center Navigation Links (Visible when logged in) */}
-          {token && (
-            <ul className="hidden md:flex items-center gap-6 text-sm">
-              {navLinks.map((link) => (
-                <li key={link.label}>
-                  <NavLink to={link.to} end={link.end} className={getLinkClass}>{link.label}</NavLink>
-                </li>
-              ))}
-            </ul>
-          )}
+          {/* Center Navigation Links */}
+          <ul className="hidden md:flex items-center gap-6 text-sm">
+            {navLinks.map((link) => (
+              <li key={link.label}>
+                <NavLink to={link.to} end={link.end} className={getLinkClass}>{link.label}</NavLink>
+              </li>
+            ))}
+          </ul>
         </div>
 
         {/* Right Section Actions */}
@@ -145,24 +143,24 @@ export default function Navbar() {
                 >
                   Logout
                 </button>
-
-                {/* Mobile menu toggle */}
-                <button
-                  onClick={() => setMenuOpen((v) => !v)}
-                  className="md:hidden relative w-9 h-9 flex items-center justify-center text-gray-700 cursor-pointer"
-                  aria-label="Toggle menu"
-                >
-                  <i className={`fa-solid ${menuOpen ? 'fa-xmark' : 'fa-bars'} text-xl`}></i>
-                </button>
               </>
             ) : (
-              <div className="flex items-center gap-4 text-sm">
+              <div className="hidden sm:flex items-center gap-4 text-sm">
                 <NavLink to="/login" className={getLinkClass}>Login</NavLink>
                 <NavLink to="/signup" className="bg-active hover:bg-active/95 text-white font-bold px-4 py-2 rounded-xl transition duration-200 shadow-sm shadow-active/10 text-xs">
                   Sign Up
                 </NavLink>
               </div>
             )}
+
+            {/* Mobile menu toggle */}
+            <button
+              onClick={() => setMenuOpen((v) => !v)}
+              className="md:hidden relative w-9 h-9 flex items-center justify-center text-gray-700 cursor-pointer"
+              aria-label="Toggle menu"
+            >
+              <i className={`fa-solid ${menuOpen ? 'fa-xmark' : 'fa-bars'} text-xl`}></i>
+            </button>
           </div>
         </div>
 
@@ -170,7 +168,7 @@ export default function Navbar() {
 
       {/* Mobile Menu Panel */}
       <AnimatePresence>
-        {token && menuOpen && (
+        {menuOpen && (
           <motion.div
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
@@ -187,12 +185,23 @@ export default function Navbar() {
                 </li>
               ))}
               <li className="pt-2 mt-2 border-t border-slate-100">
-                <button
-                  onClick={logout}
-                  className="w-full text-left px-4 py-3 rounded-xl font-semibold text-base text-red-500 hover:bg-red-50 transition cursor-pointer"
-                >
-                  Logout
-                </button>
+                {token ? (
+                  <button
+                    onClick={logout}
+                    className="w-full text-left px-4 py-3 rounded-xl font-semibold text-base text-red-500 hover:bg-red-50 transition cursor-pointer"
+                  >
+                    Logout
+                  </button>
+                ) : (
+                  <div className="flex flex-col gap-2 px-4">
+                    <NavLink to="/login" onClick={() => setMenuOpen(false)} className="w-full text-center px-4 py-3 rounded-xl font-semibold text-base text-gray-700 border border-gray-200 hover:bg-slate-50 transition">
+                      Login
+                    </NavLink>
+                    <NavLink to="/signup" onClick={() => setMenuOpen(false)} className="w-full text-center px-4 py-3 rounded-xl font-bold text-base bg-active text-white hover:bg-active/95 transition">
+                      Sign Up
+                    </NavLink>
+                  </div>
+                )}
               </li>
             </ul>
           </motion.div>
