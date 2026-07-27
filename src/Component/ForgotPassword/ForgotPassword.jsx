@@ -3,6 +3,7 @@ import { useFormik } from 'formik'
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
+import { AnimatePresence, motion } from 'framer-motion'
 
 export default function ForgotPassword() {
   let [errorMessage, setErrorMessage] = useState(null)
@@ -69,10 +70,21 @@ export default function ForgotPassword() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50/50 px-4 pt-28 pb-16">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-gray-150/40 p-8 md:p-10 transition duration-300">
-        
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-gray-150/40 p-8 md:p-10 transition duration-300"
+      >
+        <AnimatePresence mode="wait">
         {formDisplay ? (
-          <div>
+          <motion.div
+            key="email-step"
+            initial={{ opacity: 0, x: -16 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: 16 }}
+            transition={{ duration: 0.3 }}
+          >
             {/* Header */}
             <div className="text-center mb-8">
               <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Forgot Password</h1>
@@ -125,9 +137,15 @@ export default function ForgotPassword() {
                 )}
               </button>
             </form>
-          </div>
+          </motion.div>
         ) : (
-          <div>
+          <motion.div
+            key="code-step"
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -16 }}
+            transition={{ duration: 0.3 }}
+          >
             {/* Header */}
             <div className="text-center mb-8">
               <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Enter Reset Code</h1>
@@ -180,8 +198,9 @@ export default function ForgotPassword() {
                 )}
               </button>
             </form>
-          </div>
+          </motion.div>
         )}
+        </AnimatePresence>
 
         {/* Back Link */}
         <div className="mt-8 pt-6 border-t border-gray-100 text-center">
@@ -192,7 +211,7 @@ export default function ForgotPassword() {
           </Link>
         </div>
 
-      </div>
+      </motion.div>
     </div>
   )
 }

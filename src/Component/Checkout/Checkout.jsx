@@ -5,6 +5,7 @@ import axios from 'axios'
 import { useNavigate } from 'react-router-dom'
 import { CartContext } from '../../Context/CartContextProvider'
 import toast from 'react-hot-toast'
+import { motion } from 'framer-motion'
 
 export default function Checkout() {
   const { cartId, setNumOfCartItems } = useContext(CartContext)
@@ -85,7 +86,11 @@ export default function Checkout() {
 
   return (
     <div className="mt-32 mb-20 px-4 md:px-0">
-      <div className="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 p-6 md:p-10">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        className="max-w-3xl mx-auto bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 p-6 md:p-10">
         
         <div className="border-b border-gray-100 pb-6 mb-8">
           <h1 className="text-3xl font-extrabold text-gray-900 tracking-tight">Checkout</h1>
@@ -220,7 +225,7 @@ export default function Checkout() {
           </button>
         </form>
 
-      </div>
+      </motion.div>
     </div>
   )
 }

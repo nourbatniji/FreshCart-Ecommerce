@@ -3,6 +3,7 @@ import { useFormik } from 'formik'
 import React, { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import * as Yup from 'yup'
+import { motion } from 'framer-motion'
 
 export default function UpdatePassword() {
   let [errorMessage, setErrorMessage] = useState(null)
@@ -43,7 +44,11 @@ export default function UpdatePassword() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-slate-50/50 px-4 pt-28 pb-16">
-      <div className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-gray-150/40 p-8 md:p-10 transition duration-300">
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+        className="w-full max-w-md bg-white rounded-3xl shadow-xl border border-gray-150/40 p-8 md:p-10 transition duration-300">
         
         {/* Header */}
         <div className="text-center mb-8">
@@ -132,7 +137,7 @@ export default function UpdatePassword() {
           </Link>
         </div>
 
-      </div>
+      </motion.div>
     </div>
   )
 }
