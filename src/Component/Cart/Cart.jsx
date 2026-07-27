@@ -35,7 +35,7 @@ export default function Cart() {
           }
         })
       })
-      .catch((err) => {
+      .catch(() => {
         toast.error("Failed to remove item")
       })
   }
@@ -56,7 +56,7 @@ export default function Cart() {
           }
         })
       })
-      .catch((err) => {
+      .catch(() => {
         toast.error("Failed to update quantity")
       })
   }
