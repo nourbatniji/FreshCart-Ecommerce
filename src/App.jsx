@@ -1,25 +1,26 @@
-import React from 'react'
+import React, { lazy } from 'react'
 import { createBrowserRouter, RouterProvider } from 'react-router-dom'
 import Layout from './Component/Layout/Layout'
-import Home from './Component/Home/Home'
-import Cart from './Component/Cart/Cart'
-import Product from './Component/Product/Product'
-import Login from './Component/Login/Login'
-import Signup from './Component/Signup/Signup'
-import ForgotPassword from './Component/ForgotPassword/ForgotPassword'
-import NotFound from './Component/NotFound/NotFound'
-import UpdatePassword from './Component/UpdatePassword/UpdatePassword'
 import AuthContextProvider from './Context/AuthContextProvider'
 import ProtectedRouting from './Component/ProtectedRouting/ProtectedRouting'
-import Brands from './Component/Brands/Brands'
-import Categories from './Component/Cstegories/Categories'
-import ProductDetails from './Component/ProductDetails/ProductDetails'
-import Wishlist from './Component/Wishlist/Wishlist'
-import Checkout from './Component/Checkout/Checkout'
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import CartContextProvider from './Context/CartContextProvider'
 import WishlistContextProvider from './Context/WishlistContextProvider'
 import { Toaster } from 'react-hot-toast'
+
+const Home = lazy(() => import('./Component/Home/Home'))
+const Cart = lazy(() => import('./Component/Cart/Cart'))
+const Product = lazy(() => import('./Component/Product/Product'))
+const Login = lazy(() => import('./Component/Login/Login'))
+const Signup = lazy(() => import('./Component/Signup/Signup'))
+const ForgotPassword = lazy(() => import('./Component/ForgotPassword/ForgotPassword'))
+const NotFound = lazy(() => import('./Component/NotFound/NotFound'))
+const UpdatePassword = lazy(() => import('./Component/UpdatePassword/UpdatePassword'))
+const Brands = lazy(() => import('./Component/Brands/Brands'))
+const Categories = lazy(() => import('./Component/Cstegories/Categories'))
+const ProductDetails = lazy(() => import('./Component/ProductDetails/ProductDetails'))
+const Wishlist = lazy(() => import('./Component/Wishlist/Wishlist'))
+const Checkout = lazy(() => import('./Component/Checkout/Checkout'))
 
 export default function App() {
   let router = createBrowserRouter([
